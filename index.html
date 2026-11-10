@@ -144,7 +144,7 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 <div id="sample">Sample weather · live data loads on the TV</div>
 <div id="app">
   <section id="left">
-    <div class="time"><span id="hm">--:--</span><span class="sec" id="ss">00</span></div>
+    <div class="time"><span id="hm">--:--</span></div>
     <div class="date" id="date"></div>
     <div class="wx">
       <div class="ic" id="wxic">·</div>
@@ -356,7 +356,7 @@ function drawNext(){
 /* ---------- clock ---------- */
 function tick(){
   var d=new Date(), h=d.getHours();
-  $("hm").textContent=pad(h)+":"+pad(d.getMinutes()); $("ss").textContent=pad(d.getSeconds());
+  $("hm").textContent=pad(h)+":"+pad(d.getMinutes());
   $("date").textContent=DAYS[d.getDay()]+", "+MON[d.getMonth()]+" "+d.getDate();
   if(d.getSeconds()===0||!tick.ran){ drawNext(); setSky(); updateSunDot(); tick.ran=true; }
   if(d.getMinutes()===0&&d.getSeconds()===0){ buildHourly(); }
@@ -669,7 +669,7 @@ document.addEventListener("keydown",function(e){
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-var VERSION="2026-11-09-d";
+var VERSION="2026-11-09-e";
 function checkUpdate(){
   fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.text();})
     .then(function(t){ var m=t.match(/var VERSION="([^"]+)"/); if(m && m[1]!==VERSION) location.reload(true); }).catch(function(){});
