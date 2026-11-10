@@ -79,19 +79,6 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 .stat .v{font-size:2.6rem;font-weight:300}
 .stat .k{font-size:1.15rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-top:.3rem}
 
-/* routine */
-.rlist{margin-top:2rem;display:flex;flex-direction:column}
-.ri{display:flex;align-items:center;padding:1.1rem 1.4rem;border-radius:1.2rem;margin-bottom:.6rem;border:2px solid transparent;outline:none;transition:background .4s,border-color .3s}
-.ri .bx{width:2.4rem;height:2.4rem;border-radius:.7rem;border:2px solid var(--faint);margin-right:1.6rem;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex:none}
-.ri .tt{font-size:1.4rem;color:var(--dim);width:9rem;flex:none;font-variant-numeric:tabular-nums}
-.ri .nm{font-size:2rem}
-.ri .sb{font-size:1.3rem;color:var(--faint);margin-left:1rem}
-.ri.now{background:rgba(255,210,122,.12)}
-.ri.done .nm{color:var(--faint);text-decoration:line-through}
-.ri.done .bx{background:var(--good);border-color:var(--good);color:#0b1020}
-.ri:focus{border-color:rgba(255,255,255,.7)}
-.hint{margin-top:auto;font-size:1.15rem;color:var(--faint)}
-
 /* learn */
 .learn{display:flex;flex:1;min-height:0;margin-top:1.4rem}
 .learn .main{flex:1.25;padding-right:2.6rem;display:flex;flex-direction:column;min-height:0}
@@ -135,7 +122,7 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 <div id="sample">Sample weather · live data loads on the TV</div>
 <div id="app">
   <section id="left">
-    <div class="time"><span id="hm">--:--</span><span class="sec" id="ss">00</span><span class="ampm" id="ap"></span></div>
+    <div class="time"><span id="hm">--:--</span><span class="sec" id="ss">00</span></div>
     <div class="date" id="date"></div>
     <div class="wx">
       <div class="ic" id="wxic">·</div>
@@ -156,7 +143,7 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
     <div id="panels"></div>
     <div class="prog" id="prog" style="width:0"></div>
   </section>
-  <section id="ticker"><div class="lab">In the news</div><div class="tkwin"><div class="track" id="track"></div></div></section>
+  <section id="ticker"><div class="lab">Politics</div><div class="tkwin"><div class="track" id="track"></div></div></section>
 </div>
 
 <script>
@@ -208,16 +195,7 @@ var CFG = {
     { code:"SCIM 110",  name:"Introduction to Physics",        days:[2,4], s:"10:00", e:"11:15", room:"Room 311" },
     { code:"HIST 385A", name:"History: Education",             days:[2,4], s:"13:45", e:"15:00", room:"Room 312" },
     { code:"HIST 110",  name:"Ancient Greece",                 days:[2,4], s:"15:15", e:"16:30", room:"Room 310" }
-  ]},
-  routine: [
-    { id:"wake",   t:"06:30", label:"Up",               sub:"6:30–6:45" },
-    { id:"run",    t:"06:45", label:"Workout / run",    sub:"30 min", next:true },
-    { id:"swim",   t:"07:15", label:"Swim",             sub:"20 min", next:true },
-    { id:"chores", t:"08:00", label:"Chores & cooking", sub:"morning" },
-    { id:"study",  t:"16:45", label:"Study block",      sub:"afternoon" },
-    { id:"wind",   t:"21:30", label:"Wind down",        sub:"screens off", next:true },
-    { id:"bed",    t:"22:00", label:"In bed",           sub:"10 pm latest", next:true }
-  ]
+  ]}
 };
 /* =============================================== */
 
@@ -228,8 +206,8 @@ var W = null, WIKI = null, SAMPLE = false;
 function pad(n){ return (n<10?"0":"")+n; }
 function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
 function hm(str, base){ var p=str.split(":"); var d=new Date(base||new Date()); d.setHours(+p[0],+p[1],0,0); return d; }
-function fmtT(d){ var h=d.getHours(), m=d.getMinutes(); return ((h%12)||12)+":"+pad(m)+" "+(h<12?"AM":"PM"); }
-function fmtH(d){ var h=d.getHours(); return ((h%12)||12)+(h<12?"a":"p"); }
+function fmtT(d){ return pad(d.getHours())+":"+pad(d.getMinutes()); }
+function fmtH(d){ return pad(d.getHours())+":00"; }
 function dur(ms){ var m=Math.max(0,Math.round(ms/60000)); if(m<60) return m+" min"; var h=Math.floor(m/60); m=m%60; return h+" hr"+(m?" "+m+" min":""); }
 function store(k,v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
@@ -277,7 +255,7 @@ function drawWeather(){
   for(var i=i0;i<i0+12 && i<W.hourly.time.length;i++){ if(W.hourly.precipitation_probability[i]>=40 || isWet(W.hourly.weather_code[i])&&W.hourly.precipitation_probability[i]>=30){ hit=i; break; } }
   var chip=$("chip"); chip.style.display="inline-flex";
   if(isWet(c.weather_code)||c.precipitation>0){ chip.className="chip"; chip.innerHTML="<b>☔</b>Wet out right now — rain gear for the scooter"; }
-  else if(hit!==null){ chip.className="chip"; chip.innerHTML="<b>☔</b>Rain likely around "+fmtT(T(W.hourly.time[hit])).replace(":00","")+" ("+W.hourly.precipitation_probability[hit]+"%)"; }
+  else if(hit!==null){ chip.className="chip"; chip.innerHTML="<b>☔</b>Rain likely around "+fmtT(T(W.hourly.time[hit]))+" ("+W.hourly.precipitation_probability[hit]+"%)"; }
   else { chip.className="chip ok"; chip.innerHTML="<b>✓</b>Dry for the next 12 hours"; }
   setSky(); buildHourly(); buildSun();
 }
@@ -356,11 +334,11 @@ function drawNext(){
 /* ---------- clock ---------- */
 function tick(){
   var d=new Date(), h=d.getHours();
-  $("hm").textContent=((h%12)||12)+":"+pad(d.getMinutes()); $("ss").textContent=pad(d.getSeconds()); $("ap").textContent=h<12?"AM":"PM";
+  $("hm").textContent=pad(h)+":"+pad(d.getMinutes()); $("ss").textContent=pad(d.getSeconds());
   $("date").textContent=DAYS[d.getDay()]+", "+MON[d.getMonth()]+" "+d.getDate();
-  if(d.getSeconds()===0||!tick.ran){ drawNext(); setSky(); markRoutine(); updateSunDot(); tick.ran=true; }
+  if(d.getSeconds()===0||!tick.ran){ drawNext(); setSky(); updateSunDot(); tick.ran=true; }
   if(d.getMinutes()===0&&d.getSeconds()===0){ buildHourly(); }
-  if(ymd(d)!==tick.day){ if(tick.day){ buildWeek(); buildRoutine(); loadWiki(); } tick.day=ymd(d); }
+  if(ymd(d)!==tick.day){ if(tick.day){ buildWeek(); loadWiki(); } tick.day=ymd(d); }
   if(h===3&&d.getMinutes()===30&&d.getSeconds()===0) location.reload();
 }
 
@@ -394,7 +372,7 @@ function buildHourly(){
        '<div class="pbw"><div class="pb" style="height:'+Math.max(1,p)+'%;opacity:'+(p<10?.25:1)+'"></div></div><div class="pc">'+(p>=10?p+"%":"")+'</div><div class="lb">'+(i===i0?"Now":fmtH(t))+'</div></div>';
   }
   var head, sub;
-  if(wet.length){ head="Rain likely around "+fmtT(wet[0]).replace(":00",""); sub="Wet hours ahead — plan the scooter ride around it, or bring a jacket."; }
+  if(wet.length){ head="Rain likely around "+fmtT(wet[0]); sub="Wet hours ahead — plan the scooter ride around it, or bring a jacket."; }
   else { head="Dry for the next 12 hours"; sub="High "+Math.round(W.daily.temperature_2m_max[0])+"°, low "+Math.round(W.daily.temperature_2m_min[0])+"°. Wind "+Math.round(W.current.wind_speed_10m)+" mph, humidity "+W.current.relative_humidity_2m+"%."; }
   el.innerHTML='<div class="ph">'+head+'</div><div class="pp">'+sub+'</div><div class="hours">'+h+'</div>';
 }
@@ -418,8 +396,8 @@ function updateSunDot(){
   if(!W||!$("sundot")) return;
   var now=new Date(), s=sunTimes(0), tm=sunTimes(1), f=(now-s.rise)/(s.set-s.rise);
   $("srl").textContent=fmtT(s.rise); $("ssl").textContent=fmtT(s.set);
-  $("sv1").textContent=fmtT(s.rise).replace(" ",""); $("sv3").textContent=fmtT(s.set).replace(" ","");
-  $("sv2").textContent=fmtT(new Date(s.set-3600000)).replace(" ",""); $("sv4").textContent=dur(s.set-s.rise).replace(" min","m").replace(" hr","h");
+  $("sv1").textContent=fmtT(s.rise); $("sv3").textContent=fmtT(s.set);
+  $("sv2").textContent=fmtT(new Date(s.set-3600000)); $("sv4").textContent=dur(s.set-s.rise).replace(" min","m").replace(" hr","h");
   var dot=$("sundot"), glow=$("sunglow");
   if(f>=0&&f<=1){
     var p=arcPt(f); dot.setAttribute("cx",p[0]); dot.setAttribute("cy",p[1]); glow.setAttribute("cx",p[0]); glow.setAttribute("cy",p[1]); dot.setAttribute("fill","#ffd27a"); glow.style.display="";
@@ -429,25 +407,10 @@ function updateSunDot(){
     var rise = f<0 ? s.rise : tm.rise;
     dot.setAttribute("cx", f<0?100:900); dot.setAttribute("cy",330); dot.setAttribute("fill","#c9d4ff"); glow.style.display="none";
     $("arcdone").setAttribute("d", f>1 ? "M100 330 A400 290 0 0 1 900 330" : "");
-    $("sunh").textContent="Sunrise in "+dur(rise-now); $("sunp").textContent="Next sunrise at "+fmtT(rise)+". In bed by 10 keeps the 6:30 wake-up on track.";
+    $("sunh").textContent="Sunrise in "+dur(rise-now); $("sunp").textContent="Next sunrise at "+fmtT(rise)+".";
   }
 }
 
-function buildRoutine(){
-  var el=$("p_routine"); if(!el) return; var h="";
-  CFG.routine.forEach(function(r){ h+='<div class="ri" tabindex="0" data-id="'+r.id+'"><div class="bx"></div><div class="tt">'+fmtT(hm(r.t)).replace(":00","")+'</div><div class="nm">'+esc(r.label)+'</div><div class="sb">'+esc(r.sub)+'</div></div>'; });
-  el.innerHTML='<div class="ph" id="rh">Today\'s routine</div><div class="rlist">'+h+'</div><div class="hint">Remote: ▲▼ to move, OK to check off  ·  ◀ ▶ switch panels</div>';
-  markRoutine();
-}
-function markRoutine(){
-  var el=$("p_routine"); if(!el||!el.firstChild) return;
-  var done=store("routine-"+ymd(new Date()))||{}, now=new Date(), items=el.querySelectorAll(".ri"), n=0, nowId=null;
-  for(var i=0;i<CFG.routine.length;i++){ var s=hm(CFG.routine[i].t), nx=CFG.routine[i+1]?hm(CFG.routine[i+1].t):hm("23:59"); if(now>=s&&now<nx) nowId=CFG.routine[i].id; }
-  for(i=0;i<items.length;i++){ var id=items[i].getAttribute("data-id"), d=!!done[id]; if(d) n++;
-    items[i].className="ri"+(d?" done":"")+(id===nowId&&!d?" now":""); items[i].querySelector(".bx").textContent=d?"✓":""; }
-  $("rh").textContent="Today's routine  ·  "+n+" of "+items.length;
-}
-function toggleRoutine(id){ var k="routine-"+ymd(new Date()), d=store(k)||{}; d[id]=!d[id]; store(k,d); markRoutine(); }
 
 function buildWeek(){
   var el=$("p_week"); if(!el) return;
@@ -460,8 +423,8 @@ function buildWeek(){
     h+='<div class="day'+(ymd(d)===ymd(now)?' today':'')+'"><div class="dh">'+DAYS[d.getDay()].slice(0,3)+' '+(d.getMonth()+1)+'/'+d.getDate()+'</div>';
     if(!cl.length) h+='<div class="free">Free</div>';
     cl.forEach(function(c){
-      var top=fmtT(c.start).replace(" ","").toLowerCase()+(c.kind==="class"?' · '+c.code:'');
-      var nm = c.kind==="class" ? c.name : (c.kind==="group" ? c.name+' · '+c.n+' sessions till '+fmtT(c.end).replace(" ","").toLowerCase() : c.name);
+      var top=fmtT(c.start)+(c.kind==="class"?' · '+c.code:'');
+      var nm = c.kind==="class" ? c.name : (c.kind==="group" ? c.name+' · '+c.n+' sessions till '+fmtT(c.end) : c.name);
       h+='<div class="cls'+(c.end<now?' past':'')+'"><div class="c1">'+esc(top)+'</div><div class="c2">'+esc(nm)+(c.room&&c.kind!=="group"?' · '+esc(c.room):'')+'</div></div>'; });
     h+='</div>'; }
   var lbl = (dw===6||dw===0) ? "Next week" : "This week", sub;
@@ -475,8 +438,8 @@ function buildWeek(){
 function loadWiki(){
   var d=new Date(), u="https://en.wikipedia.org/api/rest_v1/feed/featured/"+d.getFullYear()+"/"+pad(d.getMonth()+1)+"/"+pad(d.getDate());
   return fetch(u,{headers:{"Accept":"application/json"}}).then(function(r){ if(!r.ok) throw 0; return r.json(); })
-    .then(function(j){ WIKI=j; buildLearn(); buildTicker(); })
-    .catch(function(){ if(!WIKI){ buildLearn(); buildTicker(); } });
+    .then(function(j){ WIKI=j; buildLearn(); })
+    .catch(function(){ if(!WIKI){ buildLearn(); } });
 }
 var learnI=0;
 function learnCards(){
@@ -496,12 +459,37 @@ function rotateLearn(keep){
   el.innerHTML='<div class="learn"><div class="main"><div class="k">'+esc(c.k)+'</div><div class="h">'+esc(c.h)+'</div><div class="x">'+esc(c.x)+'</div></div>'+
     '<div class="side"><div class="k" style="font-size:1.15rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)">On this day</div>'+side+'</div></div>';
 }
+var HEAD=null;
+var FEEDS=[["NPR","https://feeds.npr.org/1014/rss.xml"],["Fox News","https://moxie.foxnews.com/google-publisher/politics.xml"],["The Hill","https://thehill.com/news/feed/"]];
+var HEAD_URLS=["https://raw.githubusercontent.com/c46w7wyggk-spec/dayboard/data/headlines.json","headlines.json"];
+function tryUrls(i){
+  if(i>=HEAD_URLS.length) return Promise.reject();
+  return fetch(HEAD_URLS[i]+"?t="+Math.floor(Date.now()/60000)).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){ if(!j.items||!j.items.length) throw 0; var age=Date.now()-new Date(j.updated).getTime(); if(age>12*3600000 && i<HEAD_URLS.length-1) throw 0; return j.items; })
+    .catch(function(){ return tryUrls(i+1); });
+}
+function viaRss2Json(){
+  return Promise.all(FEEDS.map(function(f){
+    return fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(f[1])).then(function(r){return r.json();})
+      .then(function(j){ return (j.items||[]).slice(0,8).map(function(it){ return {src:f[0],title:it.title,pub:new Date(it.pubDate.replace(" ","T")+"Z").toISOString()}; }); })
+      .catch(function(){ return []; });
+  })).then(function(a){ return [].concat.apply([],a); });
+}
+function pickHeadlines(items){
+  var cut=Date.now()-36*3600000, bySrc={};
+  items.forEach(function(x){ if(new Date(x.pub).getTime()>=cut){ (bySrc[x.src]=bySrc[x.src]||[]).push(x); } });
+  var names=Object.keys(bySrc), out=[], i=0;
+  names.forEach(function(n){ bySrc[n].sort(function(a,b){ return new Date(b.pub)-new Date(a.pub); }); });
+  while(out.length<18){ var added=false; names.forEach(function(n){ if(bySrc[n][i]){ out.push(bySrc[n][i]); added=true; } }); if(!added) break; i++; }
+  return out;
+}
+function loadHeadlines(){
+  return tryUrls(0).catch(function(){ return viaRss2Json(); }).then(function(items){ var h=pickHeadlines(items); if(h.length){ HEAD=h; } buildTicker(); }).catch(function(){ buildTicker(); });
+}
 function buildTicker(){
-  var items=[];
-  if(WIKI&&WIKI.news) WIKI.news.forEach(function(n){ items.push(strip(n.story)); });
-  if(WIKI&&WIKI.onthisday) WIKI.onthisday.slice(0,3).forEach(function(e){ items.push("<b>"+e.year+":</b> "+esc(e.text)); });
-  if(!items.length) items=["Headlines load from Wikipedia’s “In the news” when the TV is online.","Weather from Open-Meteo · refreshes every 15 minutes."];
-  var one=items.map(function(s){ return "<span>"+(s.indexOf("<b>")===0?s:esc(s))+"</span>"; }).join("");
+  var items=(HEAD||[]).map(function(x){ return "<b>"+esc(x.src)+"</b>  "+esc(x.title); });
+  if(!items.length) items=["Loading political headlines…"];
+  var one=items.map(function(s){ return "<span>"+s+"</span>"; }).join("");
   var tr=$("track"); tr.innerHTML=one+one;
   setTimeout(function(){
     var w=tr.scrollWidth/2, pxps=70*(window.innerWidth/1920), secs=Math.max(30,w/pxps);
@@ -517,25 +505,17 @@ document.addEventListener("keydown",function(e){
   var k=e.keyCode; paused=Date.now()+90000;
   if(k===39){ show(cur+1); e.preventDefault(); return; }
   if(k===37){ show(cur-1); e.preventDefault(); return; }
-  var onR = PANELS[cur] && PANELS[cur].id==="routine";
-  if(!onR && (k===38||k===40||k===13||k===23)){ var ri=PANELS.map(function(p){return p.id;}).indexOf("routine"); show(ri); setTimeout(function(){ var f=document.querySelector(".ri"); if(f) f.focus(); },50); e.preventDefault(); return; }
-  if(onR){
-    var list=[].slice.call(document.querySelectorAll(".ri")), at=list.indexOf(document.activeElement);
-    if(k===40){ (list[Math.min(list.length-1,at+1)]||list[0]).focus(); e.preventDefault(); }
-    if(k===38){ (list[Math.max(0,at-1)]||list[0]).focus(); e.preventDefault(); }
-    if((k===13||k===23) && at>=0){ toggleRoutine(list[at].getAttribute("data-id")); e.preventDefault(); }
-  }
 });
 
 /* ---------- burn-in protection: drift the whole layout a few px ---------- */
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
 /* ---------- boot ---------- */
-addPanel("hourly","Next 12 hours"); addPanel("routine","Routine"); addPanel("sun","Daylight"); addPanel("learn","Learn"); addPanel("week","Schedule");
-makeSkyBits(); buildRoutine(); buildWeek(); buildLearn(); buildTicker();
+addPanel("hourly","Next 12 hours"); addPanel("sun","Daylight"); addPanel("learn","Learn"); addPanel("week","Schedule");
+makeSkyBits(); buildWeek(); buildLearn(); buildTicker(); loadHeadlines();
 show(0); tick(); setInterval(tick,1000); setInterval(rot,250); setInterval(shift,180000);
 loadWeather(); loadWiki();
-setInterval(loadWeather,15*60000); setInterval(loadWiki,60*60000); setInterval(buildWeek,5*60000);
+setInterval(loadWeather,15*60000); setInterval(loadWiki,60*60000); setInterval(loadHeadlines,10*60000); setInterval(buildWeek,5*60000);
 </script>
 </body>
 </html>

@@ -1,0 +1,23 @@
+name: Update headlines
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build headlines.json
+        run: python3 .github/fetch_headlines.py
+      - name: Publish to data branch
+        run: |
+          git config user.name "dayboard-bot"
+          git config user.email "dayboard-bot@users.noreply.github.com"
+          git checkout --orphan data
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          git add -f headlines.json
+          git commit -m "headlines $(date -u +%FT%TZ)"
+          git push -f origin data
