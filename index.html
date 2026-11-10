@@ -41,6 +41,7 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 #flash{background:rgba(220,230,255,.55);animation:flash 11s linear infinite;animation-play-state:paused}
 @keyframes flash{0%,61%,63.5%,66%,100%{opacity:0}62%{opacity:.9}64.5%{opacity:.6}}
 #flash.on{animation-play-state:running}
+#nightdim{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9999;transition:opacity 20s ease}
 #garland,#xhills{display:none}
 body.t-christmas #garland{display:block;position:absolute;top:0;left:0;width:100%}
 body.t-christmas #xhills{display:block}
@@ -196,6 +197,7 @@ body.t-christmas{--accent:#ffd36b;--good:#8ff0a8;--card:rgba(6,14,30,.42)}
   <div id="xhills" class="abs"></div>
   <div id="garland"></div>
 </div>
+<div id="nightdim"></div>
 <div id="sample">Sample weather · live data loads on the TV</div>
 <div id="app">
   <section id="left">
@@ -523,11 +525,16 @@ function drawNext(){
 }
 
 /* ---------- clock ---------- */
+var NIGHT={start:22,end:8,dim:.86};
+function setNight(){
+  var h=new Date().getHours(), f=qp("night"), on=f==="1"||(f!=="0"&&(NIGHT.start>NIGHT.end?(h>=NIGHT.start||h<NIGHT.end):(h>=NIGHT.start&&h<NIGHT.end)));
+  $("nightdim").style.opacity=on?NIGHT.dim:0;
+}
 function tick(){
   var d=new Date(), h=d.getHours();
   $("hm").textContent=pad(h)+":"+pad(d.getMinutes());
   $("date").textContent=DAYS[d.getDay()]+", "+MON[d.getMonth()]+" "+d.getDate();
-  if(d.getSeconds()===0||!tick.ran){ drawNext(); setSky(); updateSunDot(); tick.ran=true; }
+  if(d.getSeconds()===0||!tick.ran){ drawNext(); setSky(); updateSunDot(); setNight(); tick.ran=true; }
   if(d.getMinutes()===0&&d.getSeconds()===0){ buildHourly(); }
   if(ymd(d)!==tick.day){ if(tick.day){ buildWeek(); loadWiki(); } tick.day=ymd(d); }
   if(h===3&&d.getMinutes()===30&&d.getSeconds()===0) location.reload();
@@ -839,7 +846,7 @@ document.addEventListener("keydown",function(e){
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-var VERSION="2026-11-09-h";
+var VERSION="2026-11-10-a";
 function checkUpdate(){
   fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.text();})
     .then(function(t){ var m=t.match(/var VERSION="([^"]+)"/); if(m && m[1]!==VERSION) location.reload(true); }).catch(function(){});
