@@ -510,6 +510,14 @@ document.addEventListener("keydown",function(e){
 /* ---------- burn-in protection: drift the whole layout a few px ---------- */
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
+/* ---------- auto-update: reload when a newer version is published ---------- */
+var VERSION="2026-11-09-c";
+function checkUpdate(){
+  fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.text();})
+    .then(function(t){ var m=t.match(/var VERSION="([^"]+)"/); if(m && m[1]!==VERSION) location.reload(true); }).catch(function(){});
+}
+setInterval(checkUpdate,5*60000);
+
 /* ---------- boot ---------- */
 addPanel("hourly","Next 12 hours"); addPanel("sun","Daylight"); addPanel("learn","Learn"); addPanel("week","Schedule");
 makeSkyBits(); buildWeek(); buildLearn(); buildTicker(); loadHeadlines();
