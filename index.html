@@ -23,7 +23,21 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 @keyframes tw{from{opacity:.15}to{opacity:.9}}
 .drop{position:absolute;top:-12vh;width:1px;height:9vh;background:linear-gradient(rgba(190,220,255,0),rgba(190,220,255,.45));animation:fall linear infinite}
 @keyframes fall{to{transform:translateY(125vh)}}
-#stars,#rain{transition:opacity 4s}
+#stars,#rain,#snow{transition:opacity 4s}
+.flake{position:absolute;top:-4vh;border-radius:50%;background:#fff;opacity:.8;animation:snowfall linear infinite}
+@keyframes snowfall{to{transform:translate(4vw,112vh)}}
+body.t-light{--fg:#14203a;--dim:rgba(20,32,58,.72);--faint:rgba(20,32,58,.5);--card:rgba(255,255,255,.55);--line:rgba(20,32,58,.16);--accent:#b35a00;--rain:#1f6fc0;--good:#1c7a3c}
+body.t-light svg [stroke^="rgba(255"]{stroke:rgba(20,32,58,.3)}
+body.t-light svg [fill^="rgba(255"]{fill:rgba(20,32,58,.1)}
+body.t-light svg [stroke="#fff"]{stroke:#14203a}
+body.t-light svg [fill="#fff"]{fill:#14203a}
+body.t-light svg text[fill^="rgba(255"],body.t-light svg text[fill^="rgba(244"]{fill:rgba(20,32,58,.72)}
+body.t-light svg [stroke="#ffd27a"],body.t-light svg [stroke="url(#ts)"]{stroke:#d9822b}
+body.t-light svg [fill="#ffd27a"]{fill:#e8953a}
+body.t-light svg [stroke="#0b1020"]{stroke:#e9f1fb}
+body.t-light .blob{opacity:.25}
+body.t-light svg text[fill="#8fc7ff"],body.t-light svg text[fill="#a9d4ff"]{fill:#1f6fc0}
+body.t-christmas{--accent:#ffe08a;--good:#a8f0b8}
 
 #app{position:absolute;top:0;left:0;right:0;bottom:0;padding:3rem 3.5rem 0;display:grid;grid-template-columns:35rem 1fr;grid-template-rows:1fr 5rem;grid-column-gap:3rem;grid-row-gap:2rem;transition:transform 3s ease-in-out}
 #left{display:flex;flex-direction:column;min-height:0}
@@ -140,6 +154,7 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div id="stars" class="abs" style="opacity:0"></div>
   <div id="rain" class="abs" style="opacity:0"></div>
+  <div id="snow" class="abs" style="opacity:0"></div>
 </div>
 <div id="sample">Sample weather · live data loads on the TV</div>
 <div id="app">
@@ -284,6 +299,8 @@ function drawWeather(){
 
 /* ---------- sky ---------- */
 var skyFlip=false, lastSky="";
+var THEME=(qp("theme")||store("theme")||"dynamic");
+function setTheme(t){ if(["dynamic","dark","light","christmas"].indexOf(t)<0) t="dynamic"; if(t===THEME&&document.body.className==="t-"+t) return; THEME=t; store("theme",t); document.body.className="t-"+t; lastSky=null; setSky(); }
 function setSky(){
   var now=new Date(), s=sunTimes(0), phase="night";
   if(s){ var r=s.rise.getTime(), st=s.set.getTime(), n=now.getTime(), H=3600000;
@@ -299,19 +316,25 @@ function setSky(){
     dayC:"linear-gradient(180deg,#3b4a5e 0%,#5b6a7d 55%,#8794a3 100%)",
     dawnC:"linear-gradient(180deg,#2a2f45 0%,#5a5568 55%,#9b8a87 100%)",
     duskC:"linear-gradient(180deg,#1f2234 0%,#4b4258 55%,#86716f 100%)"};
-  var key=phase+(cloudy?"C":""); if(key===lastSky) return; lastSky=key;
+  G.dark="linear-gradient(180deg,#03050a 0%,#080c18 60%,#0e1322 100%)";
+  G.light="linear-gradient(180deg,#e9f1fb 0%,#d6e5f5 55%,#c3d8ee 100%)";
+  G.christmas="linear-gradient(180deg,#0b2a1c 0%,#12432b 50%,#7a1620 100%)";
+  var key=phase+(cloudy?"C":""); if(THEME!=="dynamic") key=THEME; if(key===lastSky) return; lastSky=key;
   var a=$("skyA"), b=$("skyB"); var on=skyFlip?a:b, off=skyFlip?b:a;
   on.style.background=G[key]; on.style.opacity=1; off.style.opacity=0; skyFlip=!skyFlip;
-  $("stars").style.opacity=(phase==="night"&&!cloudy)?1:0;
-  var wet = W && (isWet(W.current.weather_code)||W.current.precipitation>0);
+  $("stars").style.opacity=((THEME==="dynamic"&&phase==="night"&&!cloudy)||THEME==="dark")?1:0;
+  var wet = THEME==="dynamic" && W && (isWet(W.current.weather_code)||W.current.precipitation>0);
   $("rain").style.opacity=wet?1:0;
+  $("snow").style.opacity=THEME==="christmas"?1:0;
 }
 function makeSkyBits(){
   var s=$("stars"), h="";
   for(var i=0;i<70;i++) h+='<i class="star" style="left:'+(Math.random()*100)+'%;top:'+(Math.random()*70)+'%;animation-delay:'+(Math.random()*4)+'s;animation-duration:'+(3+Math.random()*4)+'s"></i>';
   s.innerHTML=h; h="";
   for(i=0;i<45;i++) h+='<i class="drop" style="left:'+(Math.random()*100)+'%;animation-duration:'+(0.9+Math.random()*0.7)+'s;animation-delay:'+(Math.random()*2)+'s"></i>';
-  $("rain").innerHTML=h;
+  $("rain").innerHTML=h; h="";
+  for(i=0;i<60;i++){ var z=3+Math.random()*5; h+='<i class="flake" style="left:'+(Math.random()*100)+'%;width:'+z+'px;height:'+z+'px;animation-duration:'+(10+Math.random()*14)+'s;animation-delay:-'+(Math.random()*20)+'s"></i>'; }
+  $("snow").innerHTML=h;
 }
 
 /* ---------- schedule ---------- */
@@ -598,6 +621,7 @@ function loadFeed(){
 function applyFeed(j){
   if(j){
     FEED=j;
+    if(j.settings&&j.settings.theme) setTheme(j.settings.theme);
     if(j.events) CFG.events=j.events.map(function(e){ return [e.date,e.start||"00:00",e.end||e.start||"23:59",e.title,e.location||"",e.group||""]; });
     if("term" in j){ var t=j.term;
       CFG.term = t ? {name:t.name||"Term",start:t.start,end:t.end,skip:t.skip||[],classes:(t.classes||[]).map(function(c){ return {code:c.code||"",name:c.name,days:c.days,s:c.start,e:c.end,room:c.room||"",until:c.until||null}; })}
@@ -669,7 +693,7 @@ document.addEventListener("keydown",function(e){
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-var VERSION="2026-11-09-e";
+var VERSION="2026-11-09-f";
 function checkUpdate(){
   fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.text();})
     .then(function(t){ var m=t.match(/var VERSION="([^"]+)"/); if(m && m[1]!==VERSION) location.reload(true); }).catch(function(){});
@@ -678,7 +702,7 @@ setInterval(checkUpdate,5*60000);
 
 /* ---------- boot ---------- */
 addPanel("hourly","Next 12 hours"); addPanel("todo","To-do"); addPanel("week","Schedule"); addPanel("sun","Daylight"); addPanel("learn","Learn");
-makeSkyBits(); buildWeek(); buildTodo(); buildLearn(); buildTicker(); loadHeadlines(); loadFeed();
+makeSkyBits(); document.body.className="t-"+THEME; buildWeek(); buildTodo(); buildLearn(); buildTicker(); loadHeadlines(); loadFeed();
 show(0); tick(); setInterval(tick,1000); setInterval(rot,250); setInterval(shift,180000);
 loadWeather(); loadWiki();
 setInterval(loadWeather,15*60000); setInterval(loadWiki,60*60000); setInterval(loadHeadlines,10*60000); setInterval(buildWeek,5*60000); setInterval(loadFeed,60000);
