@@ -164,20 +164,51 @@ html,body{height:100%;overflow:hidden;background:#0b1020;color:var(--fg);font-fa
 var CFG = {
   lat: 30.2873, lon: -97.7414,           // Austin (near W 24th St)
   panelSeconds: 40,                      // how long each center panel stays up
-  terms: [
-    { name: "Fall term", start: "2026-08-31", end: "2026-11-09", week: {
-      1: [["INF 1320","Intellectual Foundations of Econ","11:30","12:45","Washington 326"],["EPH 2900N","Investigations & Persuasion","13:45","15:00","Jefferson 312"]],
-      2: [["INF 1220","Quantitative Reasoning II","08:30","09:45","Rm 354"],["INF 1103","Bible I","10:00","11:15","Jefferson 312"],["INF 1210","Writing & the English Language","13:45","15:00","Washington 326"],["INF 1102","Epic and Tragedy","15:15","16:30","Madison 313"]],
-      3: [["INF 1320","Intellectual Foundations of Econ","11:30","12:45","Washington 326"],["EPH 2900N","Investigations & Persuasion","13:45","15:00","Jefferson 312"]],
-      4: [["INF 1220","Quantitative Reasoning II","08:30","09:45","Rm 354"],["INF 1210","Writing & the English Language","13:45","15:00","Washington 326"],["INF 1102","Epic and Tragedy","15:15","16:30","Madison 313"]]
-    }},
-    { name: "Winter term", start: null /* set e.g. "2026-11-30" */, end: null, week: {
-      1: [["ECON 102","Applied Issues in Economics II","11:30","12:45",""],["ECON 380A","Human Progress","13:45","15:00",""],["EDUC 280A","Pedagogy Survey","18:30","19:30",""]],
-      2: [["SCIM 110","Intro to Physics","10:00","11:15",""],["HIST 385A","History: Education","13:45","15:00",""],["HIST 110","Ancient Greece","15:15","16:30",""]],
-      3: [["INF 1104","Bible II","10:00","11:15",""],["ECON 102","Applied Issues in Economics II","11:30","12:45",""],["ECON 380A","Human Progress","13:45","15:00",""]],
-      4: [["SCIM 110","Intro to Physics","10:00","11:15",""],["HIST 385A","History: Education","13:45","15:00",""],["HIST 110","Ancient Greece","15:15","16:30",""]]
-    }}
+  // One-off events: [date, start, end, title, place, group]  (from Homebase export, Nov 10 2026)
+  events: [
+    ["2026-11-10","08:30","10:00","Final: Natural Law to Neural Nets","Scarbrough Building"],
+    ["2026-11-10","14:15","15:30","Optional Final Review: Epic and Tragedy","Scarbrough Building"],
+    ["2026-11-10","14:40","14:55","QRII Final Oral Exam",""],
+    ["2026-11-10","17:30","19:00","Speaker Series: Axel Kaiser","Cicero Forum"],
+    ["2026-11-11","14:15","15:30","Optional Final Review: Epic and Tragedy","Scarbrough Building"],
+    ["2026-11-12","11:30","14:00","Final: Epic and Tragedy (INF 1102)","Classroom 313"],
+    ["2026-11-16","11:30","14:00","Final: Intellectual Foundations of Econ (INF 1320)","Classroom 313"],
+    ["2026-11-17","08:30","11:00","Final: Bible I (INF 1103)","Classroom 312"],
+    ["2026-11-17","12:40","13:10","Fireworks","Main Stage","TomorrowX"],
+    ["2026-11-17","13:10","13:30","Zipline","Main Stage","TomorrowX"],
+    ["2026-11-17","13:55","14:25","Cerebras","Main Stage","TomorrowX"],
+    ["2026-11-17","14:25","14:45","Saronic Technologies","Main Stage","TomorrowX"],
+    ["2026-11-17","14:45","15:05","Glean","Main Stage","TomorrowX"],
+    ["2026-11-17","15:05","15:30","Coinbase","Main Stage","TomorrowX"],
+    ["2026-11-17","15:30","15:50","David Sacks","Main Stage","TomorrowX"],
+    ["2026-11-17","16:20","16:40","Base Power Company","Main Stage","TomorrowX"],
+    ["2026-11-17","16:40","17:05","Databricks","Main Stage","TomorrowX"],
+    ["2026-11-17","17:05","17:30","Crusoe Fireside","Main Stage","TomorrowX"],
+    ["2026-11-18","08:30","08:35","Opening Session","Main Stage","TomorrowX"],
+    ["2026-11-18","08:45","09:10","Your Brain on 20 Watts","Main Stage","TomorrowX"],
+    ["2026-11-18","09:10","09:40","Blackstone","Main Stage","TomorrowX"],
+    ["2026-11-18","09:40","10:10","Intel","Main Stage","TomorrowX"],
+    ["2026-11-18","10:10","10:35","Arm","Main Stage","TomorrowX"],
+    ["2026-11-18","10:35","11:05","DoorDash","Main Stage","TomorrowX"],
+    ["2026-11-18","11:05","11:30","What Could Go Wrong?","Main Stage","TomorrowX"],
+    ["2026-11-18","11:50","12:20","Micron","Main Stage","TomorrowX"],
+    ["2026-11-18","12:20","12:40","charity: water (keynote)","Main Stage","TomorrowX"],
+    ["2026-11-18","13:05","13:30","AlphaSense","Main Stage","TomorrowX"],
+    ["2026-11-18","13:30","14:10","NVIDIA","Main Stage","TomorrowX"],
+    ["2026-11-18","14:55","15:20","Perplexity","Main Stage","TomorrowX"],
+    ["2026-11-18","15:20","15:50","CoreWeave","Main Stage","TomorrowX"],
+    ["2026-11-18","15:50","16:20","Cognition","Main Stage","TomorrowX"]
   ],
+  // Weekly classes. days: 1=Mon … 5=Fri
+  term: { name:"Winter term", start:"2027-01-04", end:"2027-03-15", skip:["2027-02-15"], classes: [
+    { code:"ECON 102",  name:"Applied Issues in Economics II", days:[1,3], s:"11:30", e:"12:45", room:"Room 313" },
+    { code:"ECON 380A", name:"Human Progress",                 days:[1,3], s:"13:45", e:"15:00", room:"Room 202", until:"2027-02-05" },
+    { code:"INF 1104",  name:"Bible II",                       days:[3],   s:"10:00", e:"11:15", room:"Room 209" },
+    { code:"EDUC 280A", name:"Pedagogy Survey",                days:[1],   s:"18:30", e:"19:30", room:"Room TBA" },
+    { code:"SCIM 110",  name:"Introduction to Physics",        days:[2,4], s:"10:00", e:"11:15", room:"Room 311" },
+    { code:"HIST 385A", name:"History: Education",             days:[2,4], s:"13:45", e:"15:00", room:"Room 312" },
+    { code:"HIST 110",  name:"Ancient Greece",                 days:[2,4], s:"15:15", e:"16:30", room:"Room 310" }
+  ]},
   routine: [
     { id:"wake",   t:"06:30", label:"Up",               sub:"6:30–6:45" },
     { id:"run",    t:"06:45", label:"Workout / run",    sub:"30 min", next:true },
@@ -284,35 +315,40 @@ function makeSkyBits(){
 }
 
 /* ---------- schedule ---------- */
-function termFor(d){ var k=ymd(d); for(var i=0;i<CFG.terms.length;i++){ var t=CFG.terms[i]; if(t.start && k>=t.start && (!t.end || k<=t.end)) return t; } return null; }
-function nextTerm(d){ var k=ymd(d); for(var i=0;i<CFG.terms.length;i++){ var t=CFG.terms[i]; if(t.start && t.start>k) return t; } for(i=0;i<CFG.terms.length;i++){ if(!CFG.terms[i].start) return CFG.terms[i]; } return null; }
-function classesOn(d){ var t=termFor(d); if(!t) return []; return (t.week[d.getDay()]||[]).map(function(c){ return {kind:"class",code:c[0],name:c[1],start:hm(c[2],d),end:hm(c[3],d),room:c[4]}; }); }
-function routineOn(d){ return CFG.routine.filter(function(r){return r.next;}).map(function(r){ var s=hm(r.t,d); return {kind:"routine",name:r.label,sub:r.sub,start:s,end:new Date(s.getTime()+(r.id==="bed"?0:15*60000)),id:r.id}; }); }
-function itemsOn(d){ return classesOn(d).concat(routineOn(d)).sort(function(a,b){return a.start-b.start;}); }
+function inTerm(d){ var t=CFG.term, k=ymd(d); return k>=t.start && k<=t.end && t.skip.indexOf(k)<0; }
+function classesOn(d){
+  if(!inTerm(d)) return []; var k=ymd(d);
+  return CFG.term.classes.filter(function(c){ return c.days.indexOf(d.getDay())>=0 && (!c.until || k<=c.until); })
+    .map(function(c){ return {kind:"class",code:c.code,name:c.name,start:hm(c.s,d),end:hm(c.e,d),room:c.room}; });
+}
+function eventsOn(d){ var k=ymd(d); return CFG.events.filter(function(e){ return e[0]===k; })
+  .map(function(e){ return {kind:"event",name:e[3],start:hm(e[1],d),end:hm(e[2],d),room:e[4],group:e[5]||""}; }); }
+function itemsOn(d){ return classesOn(d).concat(eventsOn(d)).sort(function(a,b){return a.start-b.start;}); }
+function title(x){ return x.kind==="class" ? x.code+" · "+x.name : (x.group ? x.group+" · "+x.name : x.name); }
 
 function drawNext(){
   var now=new Date(), it=null, cur=null, prevEnd=null;
-  for(var off=0; off<4 && !it; off++){
+  for(var off=0; off<70 && !it; off++){
     var d=new Date(now); d.setDate(d.getDate()+off); d.setHours(0,0,0,0);
     var list=itemsOn(d);
     for(var i=0;i<list.length;i++){
       var x=list[i];
-      if(x.kind==="class" && x.start<=now && x.end>now){ cur=x; }
+      if(off===0 && x.start<=now && x.end>now && (!cur || x.start>cur.start)){ cur=x; }
       if(x.start>now){ it=x; it.off=off; break; }
       if(x.end<=now) prevEnd=x.end;
     }
   }
-  if(cur){
-    $("nxlab").textContent="In class now"; $("nxnm").textContent=cur.code+" · "+cur.name;
+  if(cur && !(it && it.off===0 && it.start-now<10*60000 && cur.end-now>it.start-now)){
+    $("nxlab").textContent="Happening now"; $("nxnm").textContent=title(cur);
     $("nxsub").textContent=fmtT(cur.start)+" – "+fmtT(cur.end)+(cur.room?"  ·  "+cur.room:"");
     $("nxcd").textContent="ends in "+dur(cur.end-now);
     $("nxbar").style.width=(100*(now-cur.start)/(cur.end-cur.start))+"%"; return;
   }
   if(!it){ $("nxlab").textContent="Up next"; $("nxnm").textContent="Nothing scheduled"; $("nxsub").textContent=""; $("nxcd").textContent=""; $("nxbar").style.width="0"; return; }
-  $("nxlab").textContent= it.off===0 ? "Up next" : (it.off===1 ? "Tomorrow" : DAYS[it.start.getDay()]);
-  $("nxnm").textContent= it.kind==="class" ? it.code+" · "+it.name : it.name;
-  $("nxsub").textContent= fmtT(it.start)+(it.kind==="class"?" – "+fmtT(it.end):"")+(it.room?"  ·  "+it.room:(it.sub?"  ·  "+it.sub:""));
-  var ms=it.start-now; $("nxcd").textContent= ms<60000 ? "now" : "in "+dur(ms);
+  $("nxlab").textContent= it.off===0 ? "Up next" : (it.off===1 ? "Tomorrow" : (it.off<7 ? DAYS[it.start.getDay()] : DAYS[it.start.getDay()].slice(0,3)+", "+MON[it.start.getMonth()].slice(0,3)+" "+it.start.getDate()));
+  $("nxnm").textContent= title(it);
+  $("nxsub").textContent= fmtT(it.start)+" – "+fmtT(it.end)+(it.room?"  ·  "+it.room:"");
+  var ms=it.start-now; $("nxcd").textContent= ms<60000 ? "now" : (it.off>=2 ? "in "+it.off+" days" : "in "+dur(ms));
   var from = prevEnd && it.off===0 ? prevEnd : new Date(it.start.getTime()-3*3600000);
   var f=Math.max(0,Math.min(1,(now-from)/(it.start-from))); $("nxbar").style.width=(f*100)+"%";
 }
@@ -418,13 +454,20 @@ function buildWeek(){
   var now=new Date(), mon=new Date(now); mon.setHours(0,0,0,0); var dw=mon.getDay(); mon.setDate(mon.getDate()-((dw+6)%7));
   if(dw===6||dw===0) mon.setDate(mon.getDate()+7);
   var h="", any=false;
-  for(var i=0;i<5;i++){ var d=new Date(mon); d.setDate(mon.getDate()+i); var cl=classesOn(d); if(cl.length) any=true;
+  for(var i=0;i<5;i++){ var d=new Date(mon); d.setDate(mon.getDate()+i); var raw=itemsOn(d), cl=[], grp={};
+    raw.forEach(function(x){ if(!x.group){ cl.push(x); return; } var g=grp[x.group]; if(!g){ g=grp[x.group]={kind:"group",name:x.group,start:x.start,end:x.end,room:x.room,n:0}; cl.push(g); } g.n++; if(x.end>g.end) g.end=x.end; });
+    if(cl.length) any=true;
     h+='<div class="day'+(ymd(d)===ymd(now)?' today':'')+'"><div class="dh">'+DAYS[d.getDay()].slice(0,3)+' '+(d.getMonth()+1)+'/'+d.getDate()+'</div>';
     if(!cl.length) h+='<div class="free">Free</div>';
-    cl.forEach(function(c){ h+='<div class="cls'+(c.end<now?' past':'')+'"><div class="c1">'+fmtT(c.start).replace(" ","").toLowerCase()+' · '+c.code+'</div><div class="c2">'+esc(c.name)+(c.room?' · '+esc(c.room):'')+'</div></div>'; });
+    cl.forEach(function(c){
+      var top=fmtT(c.start).replace(" ","").toLowerCase()+(c.kind==="class"?' · '+c.code:'');
+      var nm = c.kind==="class" ? c.name : (c.kind==="group" ? c.name+' · '+c.n+' sessions till '+fmtT(c.end).replace(" ","").toLowerCase() : c.name);
+      h+='<div class="cls'+(c.end<now?' past':'')+'"><div class="c1">'+esc(top)+'</div><div class="c2">'+esc(nm)+(c.room&&c.kind!=="group"?' · '+esc(c.room):'')+'</div></div>'; });
     h+='</div>'; }
-  var lbl = (dw===6||dw===0) ? "Next week" : "This week", t=termFor(now)||termFor(mon), nt=nextTerm(now);
-  var sub = any ? (t?t.name:"") : ("No classes this week."+(nt? (nt.start? " "+nt.name+" starts "+MON[+nt.start.slice(5,7)-1]+" "+(+nt.start.slice(8))+".":" "+nt.name+" start date not set yet.") : ""));
+  var lbl = (dw===6||dw===0) ? "Next week" : "This week", sub;
+  if(any) sub = inTerm(now)||inTerm(mon) ? CFG.term.name : "Finals & events";
+  else if(ymd(now)<CFG.term.start){ var st=new Date(CFG.term.start+"T00:00:00"); sub="Break — "+CFG.term.name.toLowerCase()+" starts "+DAYS[st.getDay()].slice(0,3)+", "+MON[st.getMonth()].slice(0,3)+" "+st.getDate()+" ("+Math.round((st-new Date(ymd(now)+"T00:00:00"))/86400000)+" days)"; }
+  else sub="Nothing on the calendar this week.";
   el.innerHTML='<div class="ph">'+lbl+'</div><div class="pp">'+esc(sub)+'</div><div class="week">'+h+'</div>';
 }
 
@@ -488,7 +531,7 @@ document.addEventListener("keydown",function(e){
 function shift(){ $("app").style.transform="translate("+(Math.random()*16-8).toFixed(1)+"px,"+(Math.random()*12-6).toFixed(1)+"px)"; }
 
 /* ---------- boot ---------- */
-addPanel("hourly","Next 12 hours"); addPanel("routine","Routine"); addPanel("sun","Daylight"); addPanel("learn","Learn"); addPanel("week","Classes");
+addPanel("hourly","Next 12 hours"); addPanel("routine","Routine"); addPanel("sun","Daylight"); addPanel("learn","Learn"); addPanel("week","Schedule");
 makeSkyBits(); buildRoutine(); buildWeek(); buildLearn(); buildTicker();
 show(0); tick(); setInterval(tick,1000); setInterval(rot,250); setInterval(shift,180000);
 loadWeather(); loadWiki();
